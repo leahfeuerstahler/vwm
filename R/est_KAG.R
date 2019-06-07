@@ -234,7 +234,6 @@ est_KAG <- function(S, C, N, data, nrep = 20){
                      "logLik",
                      "rmseFit",
                      "convergence")
-
   OUT
 }
 
