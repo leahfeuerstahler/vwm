@@ -183,13 +183,16 @@ est_KAG <- function(S, C, N, data, nrep = 20){
 
     # optimize starting at each set of start values
     res_tmp <- lapply(1:nrep, function(x){
-      dfoptim::nmkb(par = startValMat[x, ], fn = logLik,
-               lower = c(0, 0, 0), upper = c(max(S), 1, 1),
-               S = S, C = C, N = N, data_i = data[i, ])
+      out <- try(dfoptim::nmkb(par = startValMat[x, ], fn = logLik,
+                               lower = c(0, 0, 0), upper = c(max(S), 1, 1),
+                               S = S, C = C, N = N, data_i = data[i, ]))
+      if(class(out) == "try-error") out <- list(value = NA, convergence = 1)
+      out
     })
 
     # keep the solution with the highest log likelihood (min negative log likelihood)
-    best <- which.min(sapply(res_tmp, function(x) x$value))
+    #    and penalize nonconvergenced solutions
+    best <- which.min(sapply(res_tmp, function(x) x$value + 100000 * x$convergence))
     res <- res_tmp[[best]]
 
     ## extract parameters
